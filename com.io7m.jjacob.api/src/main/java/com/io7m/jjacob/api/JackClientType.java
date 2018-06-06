@@ -16,10 +16,14 @@
 
 package com.io7m.jjacob.api;
 
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+
+import static com.io7m.jjacob.api.JackPortFlag.JACK_PORT_IS_INPUT;
+import static com.io7m.jjacob.api.JackPortFlag.JACK_PORT_IS_OUTPUT;
 
 /**
  * A connection to a JACK server.
@@ -195,6 +199,42 @@ public interface JackClientType extends AutoCloseable
     throws JackException;
 
   /**
+   * Lists all input ports.
+   *
+   * @return A list of ports
+   *
+   * @throws JackException On errors
+   * @see #portsList(Optional, Optional, Set)
+   */
+
+  default List<String> portsListAllInputs()
+    throws JackException
+  {
+    return this.portsList(
+      Optional.empty(),
+      Optional.empty(),
+      EnumSet.of(JACK_PORT_IS_INPUT));
+  }
+
+  /**
+   * Lists all output ports.
+   *
+   * @return A list of ports
+   *
+   * @throws JackException On errors
+   * @see #portsList(Optional, Optional, Set)
+   */
+
+  default List<String> portsListAllOutputs()
+    throws JackException
+  {
+    return this.portsList(
+      Optional.empty(),
+      Optional.empty(),
+      EnumSet.of(JACK_PORT_IS_OUTPUT));
+  }
+
+  /**
    * Establish a connection between two ports.
    *
    * When a connection exists, data written to the source port will be available
@@ -221,13 +261,11 @@ public interface JackClientType extends AutoCloseable
    * @param source_port The source port
    * @param target_port The target port
    *
-   * @return {@code true} iff a connection was destroyed
-   *
    * @throws JackException On errors
    * @see "jack_disconnect"
    */
 
-  boolean portsDisconnect(
+  void portsDisconnect(
     String source_port,
     String target_port)
     throws JackException;

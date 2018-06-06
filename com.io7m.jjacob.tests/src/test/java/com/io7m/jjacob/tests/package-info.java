@@ -14,4 +14,8 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+/**
+ * Unit tests.
+ */
+
 package com.io7m.jjacob.tests;

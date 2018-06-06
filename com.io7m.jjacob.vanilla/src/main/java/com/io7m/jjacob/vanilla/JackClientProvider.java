@@ -22,7 +22,6 @@ import com.io7m.jjacob.api.JackClientCallbackRegistrationException;
 import com.io7m.jjacob.api.JackClientClosedException;
 import com.io7m.jjacob.api.JackClientConfiguration;
 import com.io7m.jjacob.api.JackClientDeactivateException;
-import com.io7m.jjacob.api.JackClientInactiveException;
 import com.io7m.jjacob.api.JackClientOpenException;
 import com.io7m.jjacob.api.JackClientPortConnectionException;
 import com.io7m.jjacob.api.JackClientPortRegistrationException;
@@ -480,7 +479,6 @@ public final class JackClientProvider implements JackClientProviderType
       Objects.requireNonNull(target_port, "target_port");
 
       this.checkNotClosed();
-      this.checkActive();
 
       final int r =
         this.libjack.jack_connect(this.client, source_port, target_port);
@@ -496,16 +494,8 @@ public final class JackClientProvider implements JackClientProviderType
       throw new JackClientPortConnectionException("Could not connect ports");
     }
 
-    private void checkActive()
-      throws JackClientInactiveException
-    {
-      if (!this.active) {
-        throw new JackClientInactiveException("Client is not active");
-      }
-    }
-
     @Override
-    public boolean portsDisconnect(
+    public void portsDisconnect(
       final String source_port,
       final String target_port)
       throws JackException
@@ -514,20 +504,15 @@ public final class JackClientProvider implements JackClientProviderType
       Objects.requireNonNull(target_port, "target_port");
 
       this.checkNotClosed();
-      this.checkActive();
 
       final int r =
         this.libjack.jack_disconnect(this.client, source_port, target_port);
 
       if (r == 0) {
-        return true;
+        return;
       }
 
-      if (r == EEXIST.intValue()) {
-        return false;
-      }
-
-      throw new JackClientPortConnectionException("Could not connect portsList");
+      throw new JackClientPortConnectionException("Could not disconnect ports");
     }
 
     @Override

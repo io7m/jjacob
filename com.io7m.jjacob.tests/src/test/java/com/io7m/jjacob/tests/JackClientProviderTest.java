@@ -14,25 +14,18 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package com.io7m.jjacob.api;
+package com.io7m.jjacob.tests;
 
-import java.util.Objects;
+import com.io7m.jjacob.api.JackClientProviderType;
+import com.io7m.jjacob.jnr.LibJackType;
+import com.io7m.jjacob.vanilla.JackClientProvider;
 
-/**
- * An exception raised whilst trying to deactivate a client.
- */
-
-public final class JackClientDeactivateException extends JackException
+public final class JackClientProviderTest extends JackClientProviderContract
 {
-  /**
-   * Construct an exception.
-   *
-   * @param message The exception message
-   */
-
-  public JackClientDeactivateException(
-    final String message)
+  @Override
+  protected JackClientProviderType clientProvider(
+    final LibJackType libjack)
   {
-    super(Objects.requireNonNull(message, "message"));
+    return JackClientProvider.create(libjack);
   }
 }
