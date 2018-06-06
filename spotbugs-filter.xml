@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter xmlns="https://github.com/spotbugs/filter/3.0.0">
+
+  <Match>
+    <Or>
+      <Class name="~com\.io7m\.jjacob\..+\$InitShim"/>
+      <Class name="com.io7m.jjacob.api.JackClientConfiguration"/>
+    </Or>
+  </Match>
+
+  <Match>
+    <Or>
+      <Bug pattern="CRLF_INJECTION_LOGS"/>
+      <Bug pattern="MRC_METHOD_RETURNS_CONSTANT"/>
+      <Bug pattern="WEM_WEAK_EXCEPTION_MESSAGING"/>
+    </Or>
+  </Match>
+
+  <!-- We store a strong reference to a callback in order to prevent the GC
+       from throwing it away after it has escaped to native code. -->
+  <Match>
+    <And>
+      <Class name="com.io7m.jjacob.vanilla.JackClientProvider$Client"/>
+      <Bug pattern="URF_UNREAD_FIELD"/>
+    </And>
+  </Match>
+
+</FindBugsFilter>

@@ -20,9 +20,12 @@
   <modules>
     <module>com.io7m.jjacob.jnr</module>
     <module>com.io7m.jjacob.tests</module>
+    <module>com.io7m.jjacob.api</module>
+    <module>com.io7m.jjacob.vanilla</module>
   </modules>
 
   <properties>
+    <io7m.api.previousVersion>0.0.1</io7m.api.previousVersion>
     <io7m.org.immutables.value.version>2.6.1</io7m.org.immutables.value.version>
   </properties>
 
@@ -94,6 +97,11 @@
         <groupId>com.io7m.immutables.style</groupId>
         <artifactId>com.io7m.immutables.style</artifactId>
         <version>0.0.1</version>
+      </dependency>
+      <dependency>
+        <groupId>com.io7m.junreachable</groupId>
+        <artifactId>com.io7m.junreachable.core</artifactId>
+        <version>2.0.0</version>
       </dependency>
       <dependency>
         <groupId>org.immutables</groupId>
