@@ -2,8 +2,9 @@
 
 <div xmlns="http://www.w3.org/1999/xhtml">
   <ul>
-    <li>High-performance platform-independent <a href="https://github.com/jnr/">JNR</a> thin binding to the JACK API.</li>
-    <li>Simple Java API for type and memory-safe JACK operations.</li>
+    <li>High-performance platform-independent <a href="https://github.com/jnr/">JNR</a> (unsafe) thin binding to the JACK API.</li>
+    <li>Type and memory-safe Java API built on top of the JNR bindings.</li>
+    <li>High coverage test suite.</li>
     <li><a href="https://www.osgi.org/">OSGi</a>-ready</li>
     <li>ISC license</li>
   </ul>
