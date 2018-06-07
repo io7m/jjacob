@@ -5,6 +5,7 @@
     <Or>
       <Class name="~com\.io7m\.jjacob\..+\$InitShim"/>
       <Class name="com.io7m.jjacob.api.JackClientConfiguration"/>
+      <Class name="com.io7m.jjacob.porttype.api.JackPortTypeInformation"/>
     </Or>
   </Match>
 
@@ -13,6 +14,7 @@
       <Bug pattern="CRLF_INJECTION_LOGS"/>
       <Bug pattern="MRC_METHOD_RETURNS_CONSTANT"/>
       <Bug pattern="WEM_WEAK_EXCEPTION_MESSAGING"/>
+      <Bug pattern="IMC_IMMATURE_CLASS_NO_TOSTRING"/>
     </Or>
   </Match>
 

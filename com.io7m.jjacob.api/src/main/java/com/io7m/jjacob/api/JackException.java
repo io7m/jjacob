@@ -19,7 +19,7 @@ package com.io7m.jjacob.api;
 import java.util.Objects;
 
 /**
- * The type of exceptions raised by API implementations.
+ * The typeName of exceptions raised by API implementations.
  */
 
 public abstract class JackException extends Exception

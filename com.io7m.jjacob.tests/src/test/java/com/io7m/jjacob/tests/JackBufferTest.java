@@ -16,18 +16,25 @@
 
 package com.io7m.jjacob.tests;
 
-import com.io7m.jjacob.api.JackClientPortTypeRegistryType;
-import com.io7m.jjacob.api.JackClientProviderType;
-import com.io7m.jjacob.jnr.LibJackType;
-import com.io7m.jjacob.vanilla.JackClientProvider;
+import com.io7m.jjacob.api.JackAbstractBuffer;
+import com.io7m.jjacob.api.JackBufferType;
 
-public final class JackClientProviderTest extends JackClientProviderContract
+public final class JackBufferTest extends JackBufferContract
 {
   @Override
-  protected JackClientProviderType clientProvider(
-    final JackClientPortTypeRegistryType types,
-    final LibJackType libjack)
+  protected JackBufferType buffer(
+    final int frames_count,
+    final int frames_size)
   {
-    return JackClientProvider.create(types, libjack);
+    return new JackAbstractBuffer(frames_count, frames_size)
+    {
+      @Override
+      protected void actualPutF(
+        final long offset,
+        final float value)
+      {
+
+      }
+    };
   }
 }

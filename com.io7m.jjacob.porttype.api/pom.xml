@@ -10,49 +10,27 @@
     <artifactId>com.io7m.jjacob</artifactId>
     <version>0.0.1-SNAPSHOT</version>
   </parent>
-  <artifactId>com.io7m.jjacob.vanilla</artifactId>
+  <artifactId>com.io7m.jjacob.porttype.api</artifactId>
 
   <packaging>jar</packaging>
-  <name>com.io7m.jjacob.vanilla</name>
-  <description>JACK Bindings (Vanilla implementation)</description>
+  <name>com.io7m.jjacob.porttype.api</name>
+  <description>JACK Bindings (Port type extension API)</description>
   <url>http://io7m.github.io/jjacob/</url>
 
   <dependencies>
     <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>com.io7m.jjacob.api</artifactId>
-      <version>${project.version}</version>
+      <groupId>com.io7m.immutables.style</groupId>
+      <artifactId>com.io7m.immutables.style</artifactId>
+      <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>com.io7m.jjacob.porttype.api</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>com.io7m.jjacob.jnr</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>com.io7m.junreachable</groupId>
-      <artifactId>com.io7m.junreachable.core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.github.jnr</groupId>
-      <artifactId>jnr-constants</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.github.jnr</groupId>
-      <artifactId>jnr-ffi</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
+      <groupId>org.immutables</groupId>
+      <artifactId>value</artifactId>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.osgi</groupId>
-      <artifactId>org.osgi.service.component.annotations</artifactId>
+      <artifactId>osgi.annotation</artifactId>
       <scope>provided</scope>
     </dependency>
   </dependencies>
@@ -83,7 +61,7 @@
         <artifactId>bnd-maven-plugin</artifactId>
         <configuration>
           <bnd><![CDATA[
-            Export-Package: com.io7m.jjacob.vanilla
+            Export-Package: com.io7m.jjacob.porttype.api
 ]]></bnd>
         </configuration>
       </plugin>

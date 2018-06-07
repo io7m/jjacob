@@ -14,20 +14,26 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package com.io7m.jjacob.tests;
+package com.io7m.jjacob.api;
 
-import com.io7m.jjacob.api.JackClientPortTypeRegistryType;
-import com.io7m.jjacob.api.JackClientProviderType;
-import com.io7m.jjacob.jnr.LibJackType;
-import com.io7m.jjacob.vanilla.JackClientProvider;
+import com.io7m.jjacob.porttype.api.JackPortTypeInformation;
 
-public final class JackClientProviderTest extends JackClientProviderContract
+import java.util.Optional;
+
+/**
+ * A registry of port types.
+ */
+
+public interface JackClientPortTypeRegistryType
 {
-  @Override
-  protected JackClientProviderType clientProvider(
-    final JackClientPortTypeRegistryType types,
-    final LibJackType libjack)
-  {
-    return JackClientProvider.create(types, libjack);
-  }
+  /**
+   * Find a port typeName by name.
+   *
+   * @param name The port typeName
+   *
+   * @return Type information, if the port typeName is known
+   */
+
+  Optional<JackPortTypeInformation> lookupByName(
+    String name);
 }

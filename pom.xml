@@ -22,6 +22,7 @@
     <module>com.io7m.jjacob.tests</module>
     <module>com.io7m.jjacob.api</module>
     <module>com.io7m.jjacob.vanilla</module>
+    <module>com.io7m.jjacob.porttype.api</module>
   </modules>
 
   <properties>
@@ -107,6 +108,21 @@
         <groupId>org.immutables</groupId>
         <artifactId>value</artifactId>
         <version>${io7m.org.immutables.value.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.osgi</groupId>
+        <artifactId>org.osgi.service.component.annotations</artifactId>
+        <version>1.4.0</version>
+      </dependency>
+      <dependency>
+        <groupId>com.io7m.jcip</groupId>
+        <artifactId>jcip-annotations</artifactId>
+        <version>1.0.2</version>
+      </dependency>
+      <dependency>
+        <groupId>org.osgi</groupId>
+        <artifactId>osgi.annotation</artifactId>
+        <version>7.0.0</version>
       </dependency>
       <dependency>
         <groupId>org.slf4j</groupId>

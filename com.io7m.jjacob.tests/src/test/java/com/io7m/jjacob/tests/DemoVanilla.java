@@ -23,9 +23,11 @@ import com.io7m.jjacob.api.JackClientType;
 import com.io7m.jjacob.api.JackException;
 import com.io7m.jjacob.api.JackPortFlag;
 import com.io7m.jjacob.api.JackPortType;
+import com.io7m.jjacob.api.JackPortTypeRegistry;
 import com.io7m.jjacob.jnr.LibJack;
 import com.io7m.jjacob.jnr.LibJackUnavailableException;
 import com.io7m.jjacob.vanilla.JackClientProvider;
+import com.io7m.jjacob.vanilla.JackPortTypesDefault;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,19 +50,44 @@ public final class DemoVanilla
   public static void main(final String[] args)
     throws LibJackUnavailableException
   {
+    /*
+     * Create a new registry of port types including only those types that
+     * JACK knows about by default (JACK_DEFAULT_AUDIO_TYPE and JACK_DEFAULT_MIDI_TYPE).
+     */
+
+    final JackPortTypeRegistry types = new JackPortTypeRegistry();
+    types.providerAdd(new JackPortTypesDefault());
+
+    /*
+     * Create a new client provider using the plain libjack C implementation.
+     */
+
     final JackClientProviderType provider =
-      JackClientProvider.create(LibJack.get());
+      JackClientProvider.create(types, LibJack.get());
+
+    /*
+     * Create a basic client configuration that just specifies a client name
+     * but otherwise uses the default settings.
+     */
 
     final JackClientConfiguration config =
       JackClientConfiguration.builder()
         .setClientName("jjacob-vanilla")
         .build();
 
+    /*
+     * Open a new client.
+     */
+
     try (final JackClientType client = provider.openClient(config)) {
       LOG.debug("client:      {}", client);
       LOG.debug("sample rate: {}", Integer.valueOf(client.sampleRate()));
       LOG.debug("buffer size: {}", Integer.valueOf(client.bufferSize()));
       LOG.debug("cpu load:    {}", Float.valueOf(client.cpuLoad()));
+
+      /*
+       * Show all available input and output ports.
+       */
 
       final List<String> output_ports =
         client.portsList(
@@ -76,7 +103,11 @@ public final class DemoVanilla
           Optional.empty(),
           EnumSet.of(JACK_PORT_IS_INPUT));
 
-      input_ports.forEach(name ->  LOG.debug("input:  {}", name));
+      input_ports.forEach(name -> LOG.debug("input:  {}", name));
+
+      /*
+       * Searching for nonexistent ports returns no ports.
+       */
 
       {
         final List<String> empty_ports =
@@ -87,6 +118,10 @@ public final class DemoVanilla
         LOG.debug("empty_ports: {}", empty_ports);
       }
 
+      /*
+       * Register two new output ports.
+       */
+
       final JackPortType port_L =
         client.portRegister("out_L", EnumSet.of(JACK_PORT_IS_OUTPUT));
       final JackPortType port_R =
@@ -94,6 +129,11 @@ public final class DemoVanilla
 
       LOG.debug("owned: {}", Boolean.valueOf(port_L.belongsTo(client)));
       LOG.debug("owned: {}", Boolean.valueOf(port_R.belongsTo(client)));
+
+      /*
+       * Set a processing callback that will write a sine wave tone to the
+       * outputs.
+       */
 
       client.setProcessCallback(context -> {
         final JackBufferType buf0 = context.portBuffer(port_L);
@@ -108,20 +148,29 @@ public final class DemoVanilla
         }
       });
 
+      /*
+       * Activate the client.
+       */
+
       client.activate();
 
       LOG.debug(
-        "port_L: {} ({}) (type: '{}') (flags: {})",
+        "port_L: {} ({}) (typeName: '{}') (flags: {})",
         port_L.name(),
         port_L.shortName(),
-        port_L.type(),
+        port_L.typeName(),
         port_L.flags());
       LOG.debug(
-        "port_R: {} ({}) (type: '{}') (flags: {})",
+        "port_R: {} ({}) (typeName: '{}') (flags: {})",
         port_R.name(),
         port_R.shortName(),
-        port_R.type(),
+        port_R.typeName(),
         port_R.flags());
+
+      /*
+       * Try and find the system's output ports and connect the client
+       * to them.
+       */
 
       final Optional<JackPortType> system_L_opt =
         client.portByName("system:playback_1");
@@ -143,6 +192,11 @@ public final class DemoVanilla
           LOG.error("could not connect output port: ", e);
         }
       });
+
+      /*
+       * Sleep forever whilst JACK calls the client repeatedly to produce
+       * audio.
+       */
 
       try {
         while (true) {

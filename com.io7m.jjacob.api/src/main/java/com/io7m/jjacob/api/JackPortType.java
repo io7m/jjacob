@@ -16,6 +16,8 @@
 
 package com.io7m.jjacob.api;
 
+import com.io7m.jjacob.porttype.api.JackPortTypeInformation;
+
 import java.util.Set;
 
 /**
@@ -55,13 +57,22 @@ public interface JackPortType
     throws JackException;
 
   /**
-   * @return The type of the port
+   * @return The type name of the port
    *
    * @throws JackException On errors
    * @see "jack_port_type"
    */
 
-  String type()
+  String typeName()
+    throws JackException;
+
+  /**
+   * @return The type of the port
+   *
+   * @throws JackException On errors
+   */
+
+  JackPortTypeInformation type()
     throws JackException;
 
   /**

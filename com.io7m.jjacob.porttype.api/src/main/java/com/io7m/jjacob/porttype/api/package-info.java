@@ -14,20 +14,8 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package com.io7m.jjacob.tests;
+/**
+ * The JACK port type extension API.
+ */
 
-import com.io7m.jjacob.api.JackClientPortTypeRegistryType;
-import com.io7m.jjacob.api.JackClientProviderType;
-import com.io7m.jjacob.jnr.LibJackType;
-import com.io7m.jjacob.vanilla.JackClientProvider;
-
-public final class JackClientProviderTest extends JackClientProviderContract
-{
-  @Override
-  protected JackClientProviderType clientProvider(
-    final JackClientPortTypeRegistryType types,
-    final LibJackType libjack)
-  {
-    return JackClientProvider.create(types, libjack);
-  }
-}
+package com.io7m.jjacob.porttype.api;

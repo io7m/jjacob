@@ -16,6 +16,7 @@
 
 package com.io7m.jjacob.vanilla;
 
+import com.io7m.jjacob.api.JackAbstractBuffer;
 import com.io7m.jjacob.api.JackBufferType;
 import com.io7m.jjacob.api.JackClientActivateException;
 import com.io7m.jjacob.api.JackClientCallbackRegistrationException;
@@ -25,6 +26,8 @@ import com.io7m.jjacob.api.JackClientDeactivateException;
 import com.io7m.jjacob.api.JackClientOpenException;
 import com.io7m.jjacob.api.JackClientPortConnectionException;
 import com.io7m.jjacob.api.JackClientPortRegistrationException;
+import com.io7m.jjacob.api.JackClientPortSearchException;
+import com.io7m.jjacob.api.JackClientPortTypeRegistryType;
 import com.io7m.jjacob.api.JackClientProcessCallbackContextType;
 import com.io7m.jjacob.api.JackClientProcessCallbackType;
 import com.io7m.jjacob.api.JackClientProviderType;
@@ -36,6 +39,7 @@ import com.io7m.jjacob.api.JackStatusCode;
 import com.io7m.jjacob.jnr.LibJackPortFlags;
 import com.io7m.jjacob.jnr.LibJackStatus;
 import com.io7m.jjacob.jnr.LibJackType;
+import com.io7m.jjacob.porttype.api.JackPortTypeInformation;
 import com.io7m.junreachable.UnimplementedCodeException;
 import com.io7m.junreachable.UnreachableCodeException;
 import jnr.ffi.Pointer;
@@ -87,45 +91,54 @@ public final class JackClientProvider implements JackClientProviderType
 {
   private static final Logger LOG =
     LoggerFactory.getLogger(JackClientProvider.class);
+
   private final LibJackType libjack;
+  private final JackClientPortTypeRegistryType types;
 
   private JackClientProvider(
-    final LibJackType in_libjack)
+    final LibJackType in_libjack,
+    final JackClientPortTypeRegistryType in_types)
   {
     this.libjack = Objects.requireNonNull(in_libjack, "client");
+    this.types = Objects.requireNonNull(in_types, "types");
   }
 
   /**
    * Create a new client provider.
    *
+   * @param types   A registry of known port types
    * @param libjack A libjack implementation
    *
    * @return A new provider
    */
 
   public static JackClientProviderType create(
+    final JackClientPortTypeRegistryType types,
     final LibJackType libjack)
   {
+    Objects.requireNonNull(types, "types");
     Objects.requireNonNull(libjack, "client");
-    return new JackClientProvider(libjack);
+    return new JackClientProvider(libjack, types);
   }
 
   private static JackClientType fetchClientInformation(
     final Pointer client,
+    final JackClientPortTypeRegistryType types,
     final LibJackType libjack)
   {
     final String client_real_name =
       libjack.jack_get_client_name(client);
 
     LOG.debug("opened client: {}", client_real_name);
-    return new Client(libjack, client, client_real_name);
+    return new Client(libjack, types, client, client_real_name);
   }
 
   private static EnumSet<JackStatusCode> statusOf(final int status)
   {
     final EnumSet<JackStatusCode> result = EnumSet.noneOf(JackStatusCode.class);
     for (final LibJackStatus v : LibJackStatus.values()) {
-      if ((status & v.intValue()) == status) {
+      final int flag = v.intValue();
+      if ((status & flag) == flag) {
         result.add(statusCodeOf(v));
       }
     }
@@ -225,7 +238,7 @@ public final class JackClientProvider implements JackClientProviderType
       throw new JackClientOpenException("Could not create client", status_of);
     }
 
-    return fetchClientInformation(client, this.libjack);
+    return fetchClientInformation(client, this.types, this.libjack);
   }
 
   private static final class Client implements JackClientType
@@ -234,17 +247,21 @@ public final class JackClientProvider implements JackClientProviderType
     private final Pointer client;
     private final String client_real_name;
     private final JackClientProcessCallbackContext process_context;
+    private final JackClientPortTypeRegistryType types;
     private volatile boolean active;
     private volatile boolean closed;
     private volatile JackClientProcessCallbackType process;
 
     Client(
       final LibJackType in_libjack,
+      final JackClientPortTypeRegistryType in_types,
       final Pointer in_client,
       final String in_client_real_name)
     {
       this.libjack =
         Objects.requireNonNull(in_libjack, "client");
+      this.types =
+        Objects.requireNonNull(in_types, "types");
       this.client =
         Objects.requireNonNull(in_client, "client");
       this.client_real_name =
@@ -404,6 +421,14 @@ public final class JackClientProvider implements JackClientProviderType
 
       this.checkNotClosed();
 
+      final Optional<JackPortTypeInformation> type_info_opt =
+        this.types.lookupByName(type);
+
+      if (!type_info_opt.isPresent()) {
+        throw new JackClientPortRegistrationException(
+          "Unrecognized port type: " + type);
+      }
+
       final Pointer pointer =
         this.libjack.jack_port_register(
           this.client,
@@ -417,7 +442,7 @@ public final class JackClientProvider implements JackClientProviderType
           "Unable to register port");
       }
 
-      return new Port(this, pointer);
+      return new Port(this, type_info_opt.get(), pointer);
     }
 
     @Override
@@ -531,7 +556,22 @@ public final class JackClientProvider implements JackClientProviderType
         return Optional.empty();
       }
 
-      return Optional.of(new Port(this, port));
+      final String type_name = this.libjack.jack_port_type(port);
+
+      final Optional<JackPortTypeInformation> type_info_opt =
+        this.types.lookupByName(type_name);
+
+      if (!type_info_opt.isPresent()) {
+        throw new JackClientPortSearchException(
+          new StringBuilder(64)
+            .append("Port ")
+            .append(name)
+            .append(" has unrecognized type: ")
+            .append(type_name)
+            .toString());
+      }
+
+      return Optional.of(new Port(this, type_info_opt.get(), port));
     }
 
     private void checkNotClosed()
@@ -579,12 +619,15 @@ public final class JackClientProvider implements JackClientProviderType
     {
       private final Client client;
       private final Pointer pointer;
+      private final JackPortTypeInformation type;
 
       Port(
         final Client in_libjack,
+        final JackPortTypeInformation in_type,
         final Pointer in_pointer)
       {
         this.client = Objects.requireNonNull(in_libjack, "client");
+        this.type = Objects.requireNonNull(in_type, "type");
         this.pointer = Objects.requireNonNull(in_pointer, "pointer");
       }
 
@@ -629,11 +672,19 @@ public final class JackClientProvider implements JackClientProviderType
       }
 
       @Override
-      public String type()
+      public String typeName()
         throws JackException
       {
         this.client.checkNotClosed();
-        return this.client.libjack.jack_port_type(this.pointer);
+        return this.type.name();
+      }
+
+      @Override
+      public JackPortTypeInformation type()
+        throws JackException
+      {
+        this.client.checkNotClosed();
+        return this.type;
       }
 
       @Override
@@ -697,7 +748,6 @@ public final class JackClientProvider implements JackClientProviderType
     {
       if (port instanceof Client.Port) {
         final Client.Port pp = (Client.Port) port;
-
         pp.client.checkNotClosed();
 
         final Pointer buffer_ptr =
@@ -705,37 +755,36 @@ public final class JackClientProvider implements JackClientProviderType
         if (buffer_ptr.address() == 0L) {
           throw new UnimplementedCodeException();
         }
-        return new Buffer(this.buffer_size, buffer_ptr);
+        return new Buffer(
+          this.buffer_size,
+          pp.type.frameSizeBytes(),
+          buffer_ptr);
       }
 
       throw new IllegalArgumentException("Incompatible port class");
     }
   }
 
-  private static final class Buffer implements JackBufferType
+  private static final class Buffer extends JackAbstractBuffer
   {
-    private final int buffer_size;
     private final Pointer buffer_ptr;
 
     Buffer(
-      final int in_buffer_size,
+      final int in_buffer_frame_count,
+      final int in_buffer_frame_size,
       final Pointer in_buffer_ptr)
     {
-      this.buffer_size =
-        in_buffer_size;
+      super(in_buffer_frame_count, in_buffer_frame_size);
       this.buffer_ptr =
         Objects.requireNonNull(in_buffer_ptr, "buffer_ptr");
     }
 
     @Override
-    public void putF(
-      final int index,
+    protected void actualPutF(
+      final long offset,
       final float value)
     {
-      if (index >= this.buffer_size) {
-        throw new ArrayIndexOutOfBoundsException(index);
-      }
-      this.buffer_ptr.putFloat(4L * (long) index, value);
+      this.buffer_ptr.putFloat(offset, value);
     }
   }
 }

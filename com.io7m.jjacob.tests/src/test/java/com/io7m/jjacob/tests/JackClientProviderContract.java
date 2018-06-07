@@ -24,12 +24,18 @@ import com.io7m.jjacob.api.JackClientDeactivateException;
 import com.io7m.jjacob.api.JackClientOpenException;
 import com.io7m.jjacob.api.JackClientPortConnectionException;
 import com.io7m.jjacob.api.JackClientPortRegistrationException;
+import com.io7m.jjacob.api.JackClientPortSearchException;
+import com.io7m.jjacob.api.JackClientPortTypeRegistryType;
 import com.io7m.jjacob.api.JackClientProviderType;
 import com.io7m.jjacob.api.JackClientType;
 import com.io7m.jjacob.api.JackPortType;
+import com.io7m.jjacob.api.JackPortTypeRegistry;
+import com.io7m.jjacob.api.JackStatusCode;
 import com.io7m.jjacob.jnr.LibJackOptions;
 import com.io7m.jjacob.jnr.LibJackPorts;
+import com.io7m.jjacob.jnr.LibJackStatus;
 import com.io7m.jjacob.jnr.LibJackType;
+import com.io7m.jjacob.vanilla.JackPortTypesDefault;
 import jnr.constants.platform.Errno;
 import jnr.ffi.Memory;
 import jnr.ffi.Pointer;
@@ -50,7 +56,15 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 public abstract class JackClientProviderContract
 {
   protected abstract JackClientProviderType clientProvider(
+    JackClientPortTypeRegistryType types,
     LibJackType libjack);
+
+  private static JackPortTypeRegistry types()
+  {
+    final JackPortTypeRegistry types = new JackPortTypeRegistry();
+    types.providerAdd(new JackPortTypesDefault());
+    return types;
+  }
 
   @Rule public final ExpectedException expected = ExpectedException.none();
 
@@ -74,15 +88,26 @@ public abstract class JackClientProviderContract
           final int[] status,
           final String server_name)
         {
+          for (final LibJackStatus s : LibJackStatus.values()) {
+            status[0] |= s.intValue();
+          }
           return Pointer.wrap(Runtime.getSystemRuntime(), 0L);
         }
       };
 
-    final JackClientProviderType provider = this.clientProvider(libjack);
+    final JackClientProviderType provider =
+      this.clientProvider(types(), libjack);
     System.out.println("Provider: " + provider);
 
     this.expected.expect(JackClientOpenException.class);
-    provider.openClient(JackClientConfiguration.builder().build());
+    try {
+      provider.openClient(JackClientConfiguration.builder().build());
+    } catch (final JackClientOpenException e) {
+      for (final JackStatusCode code : JackStatusCode.values()) {
+        Assert.assertTrue(e.status().contains(code));
+      }
+      throw e;
+    }
   }
 
   /**
@@ -98,7 +123,8 @@ public abstract class JackClientProviderContract
   {
     final LibJackUnsupported libjack = new LibJackWithTestClient();
 
-    final JackClientProviderType provider = this.clientProvider(libjack);
+    final JackClientProviderType provider =
+      this.clientProvider(types(), libjack);
 
     try (final JackClientType client =
            provider.openClient(
@@ -160,7 +186,8 @@ public abstract class JackClientProviderContract
         }
       };
 
-    final JackClientProviderType provider = this.clientProvider(libjack);
+    final JackClientProviderType provider =
+      this.clientProvider(types(), libjack);
 
     try (final JackClientType client =
            provider.openClient(
@@ -190,7 +217,8 @@ public abstract class JackClientProviderContract
   {
     final LibJackUnsupported libjack = new LibJackWithTestClient();
 
-    final JackClientProviderType provider = this.clientProvider(libjack);
+    final JackClientProviderType provider =
+      this.clientProvider(types(), libjack);
 
     try (final JackClientType client =
            provider.openClient(
@@ -224,7 +252,8 @@ public abstract class JackClientProviderContract
       }
     };
 
-    final JackClientProviderType provider = this.clientProvider(libjack);
+    final JackClientProviderType provider =
+      this.clientProvider(types(), libjack);
 
     try (final JackClientType client =
            provider.openClient(
@@ -257,7 +286,8 @@ public abstract class JackClientProviderContract
       }
     };
 
-    final JackClientProviderType provider = this.clientProvider(libjack);
+    final JackClientProviderType provider =
+      this.clientProvider(types(), libjack);
 
     try (final JackClientType client =
            provider.openClient(
@@ -300,7 +330,8 @@ public abstract class JackClientProviderContract
       }
     };
 
-    final JackClientProviderType provider = this.clientProvider(libjack);
+    final JackClientProviderType provider =
+      this.clientProvider(types(), libjack);
 
     try (final JackClientType client =
            provider.openClient(
@@ -345,7 +376,8 @@ public abstract class JackClientProviderContract
       }
     };
 
-    final JackClientProviderType provider = this.clientProvider(libjack);
+    final JackClientProviderType provider =
+      this.clientProvider(types(), libjack);
 
     try (final JackClientType client =
            provider.openClient(
@@ -374,7 +406,8 @@ public abstract class JackClientProviderContract
   {
     final LibJackUnsupported libjack = new LibJackWithTestClient();
 
-    final JackClientProviderType provider = this.clientProvider(libjack);
+    final JackClientProviderType provider =
+      this.clientProvider(types(), libjack);
 
     try (final JackClientType client =
            provider.openClient(
@@ -401,7 +434,8 @@ public abstract class JackClientProviderContract
   {
     final LibJackUnsupported libjack = new LibJackWithTestClient();
 
-    final JackClientProviderType provider = this.clientProvider(libjack);
+    final JackClientProviderType provider =
+      this.clientProvider(types(), libjack);
 
     try (final JackClientType client =
            provider.openClient(
@@ -428,7 +462,8 @@ public abstract class JackClientProviderContract
   {
     final LibJackUnsupported libjack = new LibJackWithTestClient();
 
-    final JackClientProviderType provider = this.clientProvider(libjack);
+    final JackClientProviderType provider =
+      this.clientProvider(types(), libjack);
 
     try (final JackClientType client =
            provider.openClient(
@@ -465,7 +500,8 @@ public abstract class JackClientProviderContract
       }
     };
 
-    final JackClientProviderType provider = this.clientProvider(libjack);
+    final JackClientProviderType provider =
+      this.clientProvider(types(), libjack);
 
     try (final JackClientType client =
            provider.openClient(
@@ -503,7 +539,8 @@ public abstract class JackClientProviderContract
       }
     };
 
-    final JackClientProviderType provider = this.clientProvider(libjack);
+    final JackClientProviderType provider =
+      this.clientProvider(types(), libjack);
 
     try (final JackClientType client =
            provider.openClient(
@@ -540,7 +577,8 @@ public abstract class JackClientProviderContract
       }
     };
 
-    final JackClientProviderType provider = this.clientProvider(libjack);
+    final JackClientProviderType provider =
+      this.clientProvider(types(), libjack);
 
     try (final JackClientType client =
            provider.openClient(
@@ -572,7 +610,8 @@ public abstract class JackClientProviderContract
       }
     };
 
-    final JackClientProviderType provider = this.clientProvider(libjack);
+    final JackClientProviderType provider =
+      this.clientProvider(types(), libjack);
 
     try (final JackClientType client =
            provider.openClient(
@@ -604,7 +643,8 @@ public abstract class JackClientProviderContract
       }
     };
 
-    final JackClientProviderType provider = this.clientProvider(libjack);
+    final JackClientProviderType provider =
+      this.clientProvider(types(), libjack);
 
     try (final JackClientType client =
            provider.openClient(
@@ -667,7 +707,8 @@ public abstract class JackClientProviderContract
       }
     };
 
-    final JackClientProviderType provider = this.clientProvider(libjack);
+    final JackClientProviderType provider =
+      this.clientProvider(types(), libjack);
 
     try (final JackClientType client =
            provider.openClient(
@@ -744,7 +785,8 @@ public abstract class JackClientProviderContract
       }
     };
 
-    final JackClientProviderType provider = this.clientProvider(libjack);
+    final JackClientProviderType provider =
+      this.clientProvider(types(), libjack);
 
     try (final JackClientType client =
            provider.openClient(
@@ -807,7 +849,8 @@ public abstract class JackClientProviderContract
       }
     };
 
-    final JackClientProviderType provider = this.clientProvider(libjack);
+    final JackClientProviderType provider =
+      this.clientProvider(types(), libjack);
 
     try (final JackClientType client =
            provider.openClient(
@@ -864,7 +907,8 @@ public abstract class JackClientProviderContract
       }
     };
 
-    final JackClientProviderType provider = this.clientProvider(libjack);
+    final JackClientProviderType provider =
+      this.clientProvider(types(), libjack);
 
     try (final JackClientType client =
            provider.openClient(
@@ -905,9 +949,16 @@ public abstract class JackClientProviderContract
         Assert.assertEquals("xyz", name);
         return Memory.allocateDirect(Runtime.getSystemRuntime(), 4);
       }
+
+      @Override
+      public String jack_port_type(final Pointer pointer)
+      {
+        return LibJackPorts.defaultAudioType();
+      }
     };
 
-    final JackClientProviderType provider = this.clientProvider(libjack);
+    final JackClientProviderType provider =
+      this.clientProvider(types(), libjack);
 
     try (final JackClientType client =
            provider.openClient(
@@ -918,6 +969,9 @@ public abstract class JackClientProviderContract
 
       final Optional<JackPortType> opt = client.portByName("xyz");
       Assert.assertTrue("port exists", opt.isPresent());
+      Assert.assertEquals(
+        LibJackPorts.defaultAudioType(),
+        opt.get().type().name());
     }
   }
 
@@ -943,7 +997,8 @@ public abstract class JackClientProviderContract
       }
     };
 
-    final JackClientProviderType provider = this.clientProvider(libjack);
+    final JackClientProviderType provider =
+      this.clientProvider(types(), libjack);
 
     try (final JackClientType client =
            provider.openClient(
@@ -979,7 +1034,8 @@ public abstract class JackClientProviderContract
       }
     };
 
-    final JackClientProviderType provider = this.clientProvider(libjack);
+    final JackClientProviderType provider =
+      this.clientProvider(types(), libjack);
 
     try (final JackClientType client =
            provider.openClient(
@@ -1008,7 +1064,8 @@ public abstract class JackClientProviderContract
 
     };
 
-    final JackClientProviderType provider = this.clientProvider(libjack);
+    final JackClientProviderType provider =
+      this.clientProvider(types(), libjack);
 
     try (final JackClientType client =
            provider.openClient(
@@ -1019,6 +1076,50 @@ public abstract class JackClientProviderContract
 
       client.close();
       this.expected.expect(JackClientClosedException.class);
+      client.portByName("xyz");
+    }
+  }
+
+  /**
+   * Looking up a port that has an unrecognized type fails.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public final void testPortByNameBadType()
+    throws Exception
+  {
+    final LibJackUnsupported libjack = new LibJackWithTestClient()
+    {
+      @Override
+      public Pointer jack_port_by_name(
+        final Pointer client,
+        final String name)
+      {
+        Assert.assertEquals("xyz", name);
+        return Memory.allocateDirect(Runtime.getSystemRuntime(), 4);
+      }
+
+      @Override
+      public String jack_port_type(
+        final Pointer pointer)
+      {
+        return "unknown!";
+      }
+    };
+
+    final JackClientProviderType provider =
+      this.clientProvider(types(), libjack);
+
+    try (final JackClientType client =
+           provider.openClient(
+             JackClientConfiguration
+               .builder()
+               .setClientName("test")
+               .build())) {
+
+      this.expected.expect(JackClientPortSearchException.class);
       client.portByName("xyz");
     }
   }
@@ -1085,7 +1186,8 @@ public abstract class JackClientProviderContract
       }
     };
 
-    final JackClientProviderType provider = this.clientProvider(libjack);
+    final JackClientProviderType provider =
+      this.clientProvider(types(), libjack);
 
     try (final JackClientType client =
            provider.openClient(
@@ -1103,8 +1205,48 @@ public abstract class JackClientProviderContract
       Assert.assertEquals("out_L", port.shortName());
       Assert.assertEquals("test:out_L", port.name());
       Assert.assertEquals(EnumSet.of(JACK_PORT_IS_OUTPUT), port.flags());
-      Assert.assertEquals(LibJackPorts.defaultAudioType(), port.type());
+      Assert.assertEquals(LibJackPorts.defaultAudioType(), port.typeName());
       Assert.assertTrue("Port belongs to client", port.belongsTo(client));
+    }
+  }
+
+  /**
+   * It's not possible to register a port with an unknown type.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public final void testPortRegisterUnknownType()
+    throws Exception
+  {
+    final LibJackUnsupported libjack = new LibJackWithTestClient()
+    {
+      @Override
+      public int jack_activate(final Pointer client)
+      {
+        return 0;
+      }
+    };
+
+    final JackClientProviderType provider =
+      this.clientProvider(types(), libjack);
+
+    try (final JackClientType client =
+           provider.openClient(
+             JackClientConfiguration
+               .builder()
+               .setClientName("test")
+               .build())) {
+
+      client.activate();
+
+      this.expected.expect(JackClientPortRegistrationException.class);
+      client.portRegister(
+        "out_L",
+        "unknown!",
+        EnumSet.of(JACK_PORT_IS_OUTPUT),
+        23L);
     }
   }
 
@@ -1138,7 +1280,8 @@ public abstract class JackClientProviderContract
       }
     };
 
-    final JackClientProviderType provider = this.clientProvider(libjack);
+    final JackClientProviderType provider =
+      this.clientProvider(types(), libjack);
 
     try (final JackClientType client =
            provider.openClient(
@@ -1201,7 +1344,8 @@ public abstract class JackClientProviderContract
       }
     };
 
-    final JackClientProviderType provider = this.clientProvider(libjack);
+    final JackClientProviderType provider =
+      this.clientProvider(types(), libjack);
 
     try (final JackClientType client =
            provider.openClient(
@@ -1268,7 +1412,8 @@ public abstract class JackClientProviderContract
       }
     };
 
-    final JackClientProviderType provider = this.clientProvider(libjack);
+    final JackClientProviderType provider =
+      this.clientProvider(types(), libjack);
 
     try (final JackClientType client =
            provider.openClient(
@@ -1330,7 +1475,8 @@ public abstract class JackClientProviderContract
       }
     };
 
-    final JackClientProviderType provider = this.clientProvider(libjack);
+    final JackClientProviderType provider =
+      this.clientProvider(types(), libjack);
 
     try (final JackClientType client =
            provider.openClient(
@@ -1410,7 +1556,8 @@ public abstract class JackClientProviderContract
       }
     };
 
-    final JackClientProviderType provider = this.clientProvider(libjack);
+    final JackClientProviderType provider =
+      this.clientProvider(types(), libjack);
 
     try (final JackClientType client =
            provider.openClient(

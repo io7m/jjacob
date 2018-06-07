@@ -26,7 +26,31 @@ package com.io7m.jjacob.api;
 public interface JackBufferType
 {
   /**
-   * Place a floating point value at the byte offset {@code index * 4} in the buffer.
+   * @return The number of frames the buffer can hold
+   */
+
+  int frameCount();
+
+  /**
+   * @return The size in bytes of each frame
+   */
+
+  int frameSizeBytes();
+
+  /**
+   * @return The total size of the buffer in bytes
+   */
+
+  default long sizeBytes()
+  {
+    final long f_count = (long) this.frameCount();
+    final long f_size = (long) this.frameSizeBytes();
+    return Math.multiplyExact(f_count, f_size);
+  }
+
+  /**
+   * Place a floating point value at the byte offset {@code index * 4} in the
+   * buffer.
    *
    * @param index The index
    * @param value The value
@@ -35,4 +59,16 @@ public interface JackBufferType
   void putF(
     int index,
     float value);
+
+  /**
+   * Place an array of floating point values at the byte offset {@code index * 4}
+   * in the buffer.
+   *
+   * @param index  The index
+   * @param values The values
+   */
+
+  void putArrayF(
+    int index,
+    float[] values);
 }

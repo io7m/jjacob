@@ -14,20 +14,30 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package com.io7m.jjacob.tests;
+package com.io7m.jjacob.porttype.api;
 
-import com.io7m.jjacob.api.JackClientPortTypeRegistryType;
-import com.io7m.jjacob.api.JackClientProviderType;
-import com.io7m.jjacob.jnr.LibJackType;
-import com.io7m.jjacob.vanilla.JackClientProvider;
+import com.io7m.immutables.styles.ImmutablesStyleType;
+import org.immutables.value.Value;
 
-public final class JackClientProviderTest extends JackClientProviderContract
+/**
+ * Information about a specific port type.
+ */
+
+@ImmutablesStyleType
+@Value.Immutable
+public interface JackPortTypeInformationType
 {
-  @Override
-  protected JackClientProviderType clientProvider(
-    final JackClientPortTypeRegistryType types,
-    final LibJackType libjack)
-  {
-    return JackClientProvider.create(types, libjack);
-  }
+  /**
+   * @return The name of the port type
+   */
+
+  @Value.Parameter
+  String name();
+
+  /**
+   * @return The size in bytes of a single frame of data for this port type
+   */
+
+  @Value.Parameter
+  int frameSizeBytes();
 }

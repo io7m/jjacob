@@ -19,6 +19,16 @@
 
   <dependencies>
     <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>com.io7m.jjacob.porttype.api</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.io7m.jcip</groupId>
+      <artifactId>jcip-annotations</artifactId>
+    </dependency>
+    <dependency>
       <groupId>com.io7m.immutables.style</groupId>
       <artifactId>com.io7m.immutables.style</artifactId>
       <scope>provided</scope>
@@ -26,6 +36,11 @@
     <dependency>
       <groupId>org.immutables</groupId>
       <artifactId>value</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.osgi</groupId>
+      <artifactId>org.osgi.service.component.annotations</artifactId>
       <scope>provided</scope>
     </dependency>
   </dependencies>

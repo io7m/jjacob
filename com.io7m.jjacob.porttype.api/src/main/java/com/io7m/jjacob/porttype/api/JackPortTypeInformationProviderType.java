@@ -14,20 +14,22 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package com.io7m.jjacob.tests;
+package com.io7m.jjacob.porttype.api;
 
-import com.io7m.jjacob.api.JackClientPortTypeRegistryType;
-import com.io7m.jjacob.api.JackClientProviderType;
-import com.io7m.jjacob.jnr.LibJackType;
-import com.io7m.jjacob.vanilla.JackClientProvider;
+import org.osgi.annotation.versioning.ProviderType;
 
-public final class JackClientProviderTest extends JackClientProviderContract
+import java.util.List;
+
+/**
+ * A provider of port type information.
+ */
+
+@ProviderType
+public interface JackPortTypeInformationProviderType
 {
-  @Override
-  protected JackClientProviderType clientProvider(
-    final JackClientPortTypeRegistryType types,
-    final LibJackType libjack)
-  {
-    return JackClientProvider.create(types, libjack);
-  }
+  /**
+   * @return A read-only list of port types
+   */
+
+  List<JackPortTypeInformation> types();
 }

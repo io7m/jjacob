@@ -125,7 +125,7 @@ public interface JackClientType extends AutoCloseable
     throws JackException;
 
   /**
-   * Register a new port of the default type.
+   * Register a new port of the default typeName.
    *
    * @param name    The port name
    * @param options The port options
@@ -149,19 +149,19 @@ public interface JackClientType extends AutoCloseable
 
   /**
    * Create a new port for the client. This is an object used for moving data
-   * of any type in or out of the client. Ports may be connected in various ways.
+   * of any typeName in or out of the client. Ports may be connected in various ways.
    * The port name must be unique among all ports owned by this client.
    * If the name is not unique, the registration will fail.
    *
-   * All ports have a type, which may be any non-zero length string, passed as
+   * All ports have a typeName, which may be any non-zero length string, passed as
    * an argument. Some port types are built into the JACK API,
    * like JACK_DEFAULT_AUDIO_TYPE or JACK_DEFAULT_MIDI_TYPE
    *
    * @param name        The port name
-   * @param type        The port type
+   * @param type        The port typeName
    * @param options     The port options
    * @param buffer_size The buffer size (must be non-zero if this is not a
-   *                    built-in port type. Otherwise, it is ignored.)
+   *                    built-in port typeName. Otherwise, it is ignored.)
    *
    * @return A new port
    *
@@ -181,8 +181,8 @@ public interface JackClientType extends AutoCloseable
    *
    * @param name_pattern A regular expression used to select ports by name.
    *                     If empty, no selection based on name will be carried out.
-   * @param type_pattern A regular expression used to select ports by type.
-   *                     If empty, no selection based on type will be carried out.
+   * @param type_pattern A regular expression used to select ports by typeName.
+   *                     If empty, no selection based on typeName will be carried out.
    * @param flags        A set of flags used to select ports. If empty,
    *                     no selection based on flags will be carried out.
    *
