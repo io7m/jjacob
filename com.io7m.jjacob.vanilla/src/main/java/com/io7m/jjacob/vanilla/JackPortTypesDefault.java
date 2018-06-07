@@ -44,11 +44,18 @@ public final class JackPortTypesDefault
     final ArrayList<JackPortTypeInformation> types =
       new ArrayList<>(1);
 
+    types.add(
+      JackPortTypeInformation.of(
+        LibJackPorts.defaultAudioType(),
+        4,
+        false));
+    types.add(
+      JackPortTypeInformation.of(
+        LibJackPorts.defaultMidiType(),
+        1,
+        true));
+
     this.types_read = Collections.unmodifiableList(types);
-    types.add(
-      JackPortTypeInformation.of(LibJackPorts.defaultAudioType(), 4));
-    types.add(
-      JackPortTypeInformation.of(LibJackPorts.defaultMidiType(), 1));
   }
 
   @Override

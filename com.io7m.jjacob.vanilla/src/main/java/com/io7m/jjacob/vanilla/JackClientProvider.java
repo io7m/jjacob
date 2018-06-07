@@ -17,6 +17,7 @@
 package com.io7m.jjacob.vanilla;
 
 import com.io7m.jjacob.api.JackAbstractBuffer;
+import com.io7m.jjacob.api.JackBufferMIDIType;
 import com.io7m.jjacob.api.JackBufferType;
 import com.io7m.jjacob.api.JackClientActivateException;
 import com.io7m.jjacob.api.JackClientCallbackRegistrationException;
@@ -746,6 +747,8 @@ public final class JackClientProvider implements JackClientProviderType
       final JackPortType port)
       throws JackException
     {
+      Objects.requireNonNull(port, "port");
+
       if (port instanceof Client.Port) {
         final Client.Port pp = (Client.Port) port;
         pp.client.checkNotClosed();
@@ -762,6 +765,74 @@ public final class JackClientProvider implements JackClientProviderType
       }
 
       throw new IllegalArgumentException("Incompatible port class");
+    }
+
+    @Override
+    public JackBufferMIDIType portBufferMIDI(
+      final JackPortType port)
+      throws JackException
+    {
+      Objects.requireNonNull(port, "port");
+
+      if (port instanceof Client.Port) {
+        final Client.Port pp = (Client.Port) port;
+        pp.client.checkNotClosed();
+
+        if (!pp.type.isJackMIDI()) {
+          throw new JackClientPortSearchException(
+            new StringBuilder(64)
+              .append(
+                "Port is not of a type containing JACK MIDI events (is type '")
+              .append(pp.type.name())
+              .append("')")
+              .toString());
+        }
+
+        final Pointer buffer_ptr =
+          this.libjack.jack_port_get_buffer(pp.pointer, this.buffer_size);
+        if (buffer_ptr.address() == 0L) {
+          throw new UnimplementedCodeException();
+        }
+
+        final int event_count =
+          this.libjack.jack_midi_get_event_count(buffer_ptr);
+        final int lost_event_count =
+          this.libjack.jack_midi_get_lost_event_count(buffer_ptr);
+
+        return new MIDIBuffer(buffer_ptr, event_count, lost_event_count);
+      }
+
+      throw new IllegalArgumentException("Incompatible port class");
+    }
+  }
+
+  private static final class MIDIBuffer implements JackBufferMIDIType
+  {
+    private final Pointer buffer_ptr;
+    private final int event_count;
+    private final int lost_event_count;
+
+    MIDIBuffer(
+      final Pointer in_buffer_ptr,
+      final int in_event_count,
+      final int in_lost_event_count)
+    {
+      this.buffer_ptr =
+        Objects.requireNonNull(in_buffer_ptr, "buffer_ptr");
+      this.event_count = in_event_count;
+      this.lost_event_count = in_lost_event_count;
+    }
+
+    @Override
+    public int eventCount()
+    {
+      return this.event_count;
+    }
+
+    @Override
+    public int eventLostCount()
+    {
+      return this.lost_event_count;
     }
   }
 

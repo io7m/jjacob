@@ -76,6 +76,15 @@ public class LibJackUnsupported implements LibJackType
   }
 
   @Override
+  public int jack_set_xrun_callback(
+    final Pointer client,
+    final XRunCallbackType process,
+    final Pointer data)
+  {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public Pointer jack_port_register(
     final Pointer client,
     final String port_name,
@@ -191,6 +200,29 @@ public class LibJackUnsupported implements LibJackType
 
   @Override
   public int jack_deactivate(final Pointer client)
+  {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public int jack_midi_get_event_count(
+    final Pointer buffer)
+  {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public int jack_midi_get_lost_event_count(
+    final Pointer buffer)
+  {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public int jack_midi_event_get(
+    final MidiEvent event,
+    final Pointer buffer,
+    final int index)
   {
     throw new UnsupportedOperationException();
   }

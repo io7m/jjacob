@@ -20,19 +20,22 @@ import com.io7m.jjacob.jnr.LibJack;
 import com.io7m.jjacob.jnr.LibJackPorts;
 import com.io7m.jjacob.jnr.LibJackType;
 import com.io7m.jjacob.jnr.LibJackUnavailableException;
+import jnr.ffi.Memory;
 import jnr.ffi.Pointer;
+import jnr.ffi.Runtime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.atomic.AtomicReference;
+
 import static com.io7m.jjacob.jnr.LibJackOptions.JackNoStartServer;
-import static com.io7m.jjacob.jnr.LibJackPortFlags.JackPortIsInput;
 import static com.io7m.jjacob.jnr.LibJackPortFlags.JackPortIsOutput;
 
-public final class Demo
+public final class DemoAudioOut
 {
-  private static final Logger LOG = LoggerFactory.getLogger(Demo.class);
+  private static final Logger LOG = LoggerFactory.getLogger(DemoAudioOut.class);
 
-  private Demo()
+  private DemoAudioOut()
   {
 
   }
@@ -64,21 +67,6 @@ public final class Demo
           Integer.valueOf(jack.jack_get_sample_rate(client)));
       }
 
-      {
-        LOG.debug("setting client process callback");
-        jack.jack_set_process_callback(client, (frames, data) -> {
-          // LOG.debug("process: {}", Integer.valueOf(frames));
-          return 0;
-        }, null);
-      }
-
-      {
-        LOG.debug("setting client shutdown callback");
-        jack.jack_on_shutdown(client, (data) -> {
-          LOG.debug("shutdown");
-        }, null);
-      }
-
       final Pointer port =
         jack.jack_port_register(
           client,
@@ -93,6 +81,33 @@ public final class Demo
       }
 
       {
+        LOG.debug("setting client process callback");
+
+        final Pointer raw_data =
+          Memory.allocateDirect(Runtime.getSystemRuntime(), 4);
+
+        raw_data.putFloat(0L, 0.0f);
+
+        jack.jack_set_process_callback(client, (frames, data) -> {
+          final Pointer buffer = jack.jack_port_get_buffer(port, frames);
+
+          final float rising = data.getFloat(0L) + 0.001f;
+          data.putFloat(0L, rising);
+
+          for (int index = 0; index < frames; ++index) {
+            final double d_index = (double) index;
+            final double d_frames = (double) frames;
+            final double d_position = (d_index / d_frames);
+
+            buffer.putFloat(
+              (long) index * 4L,
+              (float) Math.sin((d_position * Math.PI * 2.0)) * rising);
+          }
+          return 0;
+        }, raw_data);
+      }
+
+      {
         LOG.debug("activating jack client");
         final int r = jack.jack_activate(client);
         if (r != 0) {
@@ -102,14 +117,29 @@ public final class Demo
       }
 
       {
-        final Pointer ports =
-          jack.jack_get_ports(
-          client,
-          null,
-          null,
-          (long) (JackPortIsOutput.intValue()));
+        LOG.debug("connecting jack client");
+        final int r =
+          jack.jack_connect(
+            client,
+            "jjacob:output",
+            "system:playback_1");
+        if (r != 0) {
+          LOG.error("could not connect jack client: {}", r);
+          throw new RuntimeException();
+        }
+      }
 
-        LOG.debug("portsList:   0x{}", ports);
+      {
+        LOG.debug("connecting jack client");
+        final int r =
+          jack.jack_connect(
+            client,
+            "jjacob:output",
+            "Example Scope (Mono):In");
+        if (r != 0) {
+          LOG.error("could not connect jack client: {}", r);
+          throw new RuntimeException();
+        }
       }
 
       try {

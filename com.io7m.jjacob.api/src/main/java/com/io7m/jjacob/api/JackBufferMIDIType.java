@@ -14,37 +14,15 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package com.io7m.jjacob.porttype.api;
-
-import com.io7m.immutables.styles.ImmutablesStyleType;
-import org.immutables.value.Value;
+package com.io7m.jjacob.api;
 
 /**
- * Information about a specific port type.
+ * A buffer of MIDI events.
  */
 
-@ImmutablesStyleType
-@Value.Immutable
-public interface JackPortTypeInformationType
+public interface JackBufferMIDIType
 {
-  /**
-   * @return The name of the port type
-   */
+  int eventCount();
 
-  @Value.Parameter
-  String name();
-
-  /**
-   * @return The size in bytes of a single frame of data for this port type
-   */
-
-  @Value.Parameter
-  int frameSizeBytes();
-
-  /**
-   * @return {@code true} if the underlying data is JACK MIDI data
-   */
-
-  @Value.Parameter
-  boolean isJackMIDI();
+  int eventLostCount();
 }

@@ -17,10 +17,13 @@
 package com.io7m.jjacob.jnr;
 
 import jnr.ffi.Pointer;
+import jnr.ffi.Runtime;
+import jnr.ffi.Struct;
 import jnr.ffi.annotations.Delegate;
 import jnr.ffi.annotations.IgnoreError;
 import jnr.ffi.annotations.In;
 import jnr.ffi.annotations.Out;
+import jnr.ffi.annotations.Transient;
 import jnr.ffi.types.u_int32_t;
 
 /**
@@ -43,6 +46,26 @@ public interface LibJackType
     @Delegate
     void call(
       Pointer data);
+  }
+
+  interface XRunCallbackType
+  {
+    @Delegate
+    int call(
+      Pointer data);
+  }
+
+  final class MidiEvent extends Struct
+  {
+    public final Unsigned32 frames = new Unsigned32();
+    public final size_t size = new size_t();
+    public final Pointer pointer = new Pointer();
+
+    public MidiEvent(
+      final Runtime runtime)
+    {
+      super(runtime);
+    }
   }
 
   @IgnoreError
@@ -78,6 +101,12 @@ public interface LibJackType
   int jack_set_process_callback(
     @In Pointer client,
     @In ProcessCallbackType process,
+    @In Pointer data);
+
+  @IgnoreError
+  int jack_set_xrun_callback(
+    @In Pointer client,
+    @In XRunCallbackType process,
     @In Pointer data);
 
   @IgnoreError
@@ -158,4 +187,20 @@ public interface LibJackType
   @IgnoreError
   int jack_deactivate(
     @In Pointer client);
+
+  @IgnoreError
+  @u_int32_t
+  int jack_midi_get_event_count(
+    @In Pointer buffer);
+
+  @IgnoreError
+  @u_int32_t
+  int jack_midi_get_lost_event_count(
+    @In Pointer buffer);
+
+  @IgnoreError
+  int jack_midi_event_get(
+    @Out @Transient MidiEvent event,
+    @In Pointer buffer,
+    @In @u_int32_t int index);
 }

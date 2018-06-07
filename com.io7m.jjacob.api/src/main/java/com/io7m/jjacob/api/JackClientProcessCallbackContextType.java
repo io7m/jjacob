@@ -53,4 +53,24 @@ public interface JackClientProcessCallbackContextType
   JackBufferType portBuffer(
     JackPortType port)
     throws JackException;
+
+  /**
+   * Get a reference to the buffer for the target port. The buffer <i>is only
+   * valid during the call to
+   * {@link JackClientProcessCallbackType#onProcess(JackClientProcessCallbackContextType)}</i>
+   * and <i>MUST NOT</i> be stored or otherwise used outside of that callback.
+   *
+   * The method will raise an exception if the port is not of a type understood
+   * by JACK to contain MIDI event data.
+   *
+   * @param port The target port
+   *
+   * @return A port buffer
+   *
+   * @throws JackException On errors
+   */
+
+  JackBufferMIDIType portBufferMIDI(
+    JackPortType port)
+    throws JackException;
 }
