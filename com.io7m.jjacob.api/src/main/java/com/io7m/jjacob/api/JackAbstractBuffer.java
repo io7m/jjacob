@@ -64,6 +64,50 @@ public abstract class JackAbstractBuffer implements JackBufferType
     long offset,
     float value);
 
+  /**
+   * Put a float array at the given byte offset.
+   *
+   * @param offset The byte offset
+   * @param values  The values
+   */
+
+  protected abstract void actualPutArrayF(
+    long offset,
+    float[] values);
+
+  /**
+   * Put an integer value at the given byte offset.
+   *
+   * @param offset The byte offset
+   * @param value  The value
+   */
+
+  protected abstract void actualPutI(
+    long offset,
+    int value);
+
+  /**
+   * Put a byte value at the given byte offset.
+   *
+   * @param offset The byte offset
+   * @param value  The value
+   */
+
+  protected abstract void actualPutB(
+    long offset,
+    int value);
+
+  /**
+   * Put a byte array at the given byte offset.
+   *
+   * @param offset The byte offset
+   * @param values  The values
+   */
+
+  protected abstract void actualPutArrayB(
+    long offset,
+    byte[] values);
+
   @Override
   public final void putF(
     final int index,
@@ -84,12 +128,39 @@ public abstract class JackAbstractBuffer implements JackBufferType
     final long offset_end = 4L * (long) (index + Math.max(0, values.length - 1));
     this.checkBounds(index, offset_end);
 
-    long offset = 4L * (long) index;
-    for (int e_index = 0; e_index < values.length; ++e_index) {
-      final float x = values[e_index];
-      this.actualPutF(offset, x);
-      offset += 4L;
-    }
+    final long offset = 4L * (long) index;
+    this.actualPutArrayF(offset, values);
+  }
+
+  @Override
+  public final void putI(
+    final int index,
+    final int value)
+  {
+    final long offset = 4L * (long) index;
+    this.checkBounds(index, offset);
+    this.actualPutI(offset, value);
+  }
+
+  @Override
+  public final void putB(
+    final int offset,
+    final int value)
+  {
+    this.checkBounds(offset, offset);
+    this.actualPutB(offset, value);
+  }
+
+  @Override
+  public final void putArrayB(
+    final int offset,
+    final byte[] values)
+  {
+    Objects.requireNonNull(values, "values");
+
+    final long offset_end = (long) (offset + Math.max(0, values.length - 1));
+    this.checkBounds(offset, offset_end);
+    this.actualPutArrayB(offset, values);
   }
 
   private void checkBounds(

@@ -786,5 +786,37 @@ public final class JackClientProvider implements JackClientProviderType
     {
       this.buffer_ptr.putFloat(offset, value);
     }
+
+    @Override
+    protected void actualPutArrayF(
+      final long offset,
+      final float[] values)
+    {
+      this.buffer_ptr.put(offset, values, 0, values.length);
+    }
+
+    @Override
+    protected void actualPutI(
+      final long offset,
+      final int value)
+    {
+      this.buffer_ptr.putInt(offset, value);
+    }
+
+    @Override
+    protected void actualPutB(
+      final long offset,
+      final int value)
+    {
+      this.buffer_ptr.putByte(offset, (byte) (value & 0xff));
+    }
+
+    @Override
+    protected void actualPutArrayB(
+      final long offset,
+      final byte[] values)
+    {
+      this.buffer_ptr.put(offset, values, 0, values.length);
+    }
   }
 }

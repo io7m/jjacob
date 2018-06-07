@@ -35,6 +35,38 @@ public final class JackBufferTest extends JackBufferContract
       {
 
       }
+
+      @Override
+      protected void actualPutArrayF(
+        final long offset,
+        final float[] values)
+      {
+
+      }
+
+      @Override
+      protected void actualPutI(
+        final long offset,
+        final int value)
+      {
+
+      }
+
+      @Override
+      protected void actualPutB(
+        final long offset,
+        final int value)
+      {
+
+      }
+
+      @Override
+      protected void actualPutArrayB(
+        final long offset,
+        final byte[] values)
+      {
+
+      }
     };
   }
 }

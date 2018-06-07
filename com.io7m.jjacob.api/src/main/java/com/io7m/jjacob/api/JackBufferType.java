@@ -61,6 +61,31 @@ public interface JackBufferType
     float value);
 
   /**
+   * Place an integer value at the byte offset {@code index * 4} in the
+   * buffer.
+   *
+   * @param index The index
+   * @param value The value
+   */
+
+  void putI(
+    int index,
+    int value);
+
+  /**
+   * Place a byte value at the byte offset {@code offset} in the
+   * buffer. The {@code value} parameter is of type {@code int} in order to
+   * allow for the full range of unsigned byte values ({@code [0, 255]}).
+   *
+   * @param offset The offset
+   * @param value The value
+   */
+
+  void putB(
+    int offset,
+    int value);
+
+  /**
    * Place an array of floating point values at the byte offset {@code index * 4}
    * in the buffer.
    *
@@ -71,4 +96,16 @@ public interface JackBufferType
   void putArrayF(
     int index,
     float[] values);
+
+  /**
+   * Place an array of byte values at the byte offset {@code offset}
+   * in the buffer.
+   *
+   * @param offset  The index
+   * @param values The values
+   */
+
+  void putArrayB(
+    int offset,
+    byte[] values);
 }
