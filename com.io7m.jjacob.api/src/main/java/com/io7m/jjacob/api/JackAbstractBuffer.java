@@ -27,18 +27,6 @@ public abstract class JackAbstractBuffer implements JackBufferType
   private final int buffer_frames;
   private final int buffer_frame_size;
 
-  @Override
-  public final int frameCount()
-  {
-    return this.buffer_frames;
-  }
-
-  @Override
-  public final int frameSizeBytes()
-  {
-    return this.buffer_frame_size;
-  }
-
   /**
    * Construct a buffer.
    *
@@ -51,6 +39,18 @@ public abstract class JackAbstractBuffer implements JackBufferType
   {
     this.buffer_frames = in_buffer_frames;
     this.buffer_frame_size = in_buffer_frame_size;
+  }
+
+  @Override
+  public final int frameCount()
+  {
+    return this.buffer_frames;
+  }
+
+  @Override
+  public final int frameSizeBytes()
+  {
+    return this.buffer_frame_size;
   }
 
   /**
@@ -68,7 +68,7 @@ public abstract class JackAbstractBuffer implements JackBufferType
    * Put a float array at the given byte offset.
    *
    * @param offset The byte offset
-   * @param values  The values
+   * @param values The values
    */
 
   protected abstract void actualPutArrayF(
@@ -101,12 +101,69 @@ public abstract class JackAbstractBuffer implements JackBufferType
    * Put a byte array at the given byte offset.
    *
    * @param offset The byte offset
-   * @param values  The values
+   * @param values The values
    */
 
   protected abstract void actualPutArrayB(
     long offset,
     byte[] values);
+
+  /**
+   * Get a floating point value from the given byte offset.
+   *
+   * @param offset The byte offset
+   */
+
+  protected abstract float actualGetF(
+    long offset);
+
+  /**
+   * Get an integer value from the given byte offset.
+   *
+   * @param offset The byte offset
+   */
+
+  protected abstract int actualGetI(
+    long offset);
+
+  /**
+   * Get a byte value from the given byte offset.
+   *
+   * @param offset The byte offset
+   */
+
+  protected abstract int actualGetB(
+    long offset);
+
+  /**
+   * Get an array of floats from the given byte offset.
+   *
+   * @param offset       The byte offset
+   * @param values       The output array
+   * @param array_offset The offset into the array to which to save values
+   * @param length       The number of values to save
+   */
+
+  protected abstract void actualGetArrayF(
+    long offset,
+    float[] values,
+    int array_offset,
+    int length);
+
+  /**
+   * Get an array of bytes from the given byte offset.
+   *
+   * @param offset       The byte offset
+   * @param values       The output array
+   * @param array_offset The offset into the array to which to save values
+   * @param length       The number of values to save
+   */
+
+  protected abstract void actualGetArrayB(
+    long offset,
+    byte[] values,
+    int array_offset,
+    int length);
 
   @Override
   public final void putF(
@@ -125,7 +182,9 @@ public abstract class JackAbstractBuffer implements JackBufferType
   {
     Objects.requireNonNull(values, "values");
 
-    final long offset_end = 4L * (long) (index + Math.max(0, values.length - 1));
+    final long offset_end = 4L * (long) (index + Math.max(
+      0,
+      values.length - 1));
     this.checkBounds(index, offset_end);
 
     final long offset = 4L * (long) index;
@@ -161,6 +220,62 @@ public abstract class JackAbstractBuffer implements JackBufferType
     final long offset_end = (long) (offset + Math.max(0, values.length - 1));
     this.checkBounds(offset, offset_end);
     this.actualPutArrayB(offset, values);
+  }
+
+  @Override
+  public final float getF(
+    final int index)
+  {
+    final long offset = 4L * (long) index;
+    this.checkBounds(index, offset);
+    return this.actualGetF(offset);
+  }
+
+  @Override
+  public final int getI(
+    final int index)
+  {
+    final long offset = 4L * (long) index;
+    this.checkBounds(index, offset);
+    return this.actualGetI(offset);
+  }
+
+  @Override
+  public final int getB(
+    final int offset)
+  {
+    this.checkBounds(offset, offset);
+    return this.actualGetB(offset);
+  }
+
+  @Override
+  public void getArrayF(
+    final int index,
+    final float[] values,
+    final int array_offset,
+    final int length)
+  {
+    Objects.requireNonNull(values, "values");
+
+    final long offset_end = 4L * (long) (index + Math.max(0, length - 1));
+    this.checkBounds(index, offset_end);
+
+    final long offset = 4L * (long) index;
+    this.actualGetArrayF(offset, values, array_offset, length);
+  }
+
+  @Override
+  public void getArrayB(
+    final int offset,
+    final byte[] values,
+    final int array_offset,
+    final int length)
+  {
+    Objects.requireNonNull(values, "values");
+
+    final long offset_end = (long) (offset + Math.max(0, length - 1));
+    this.checkBounds(offset, offset_end);
+    this.actualGetArrayB(offset, values, array_offset, length);
   }
 
   private void checkBounds(

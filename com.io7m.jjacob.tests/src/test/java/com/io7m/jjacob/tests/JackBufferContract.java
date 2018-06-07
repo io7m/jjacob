@@ -30,7 +30,7 @@ public abstract class JackBufferContract
     int frames_size);
 
   @Test
-  public final void testOKF()
+  public final void testPutOKF()
   {
     final JackBufferType buffer = this.buffer(128, 4);
 
@@ -40,7 +40,7 @@ public abstract class JackBufferContract
   }
 
   @Test
-  public final void testOKI()
+  public final void testPutOKI()
   {
     final JackBufferType buffer = this.buffer(128, 4);
 
@@ -50,7 +50,7 @@ public abstract class JackBufferContract
   }
 
   @Test
-  public final void testOKB()
+  public final void testPutOKB()
   {
     final JackBufferType buffer = this.buffer(128, 1);
 
@@ -60,7 +60,7 @@ public abstract class JackBufferContract
   }
 
   @Test
-  public final void testOKArrayF()
+  public final void testPutOKArrayF()
   {
     final JackBufferType buffer = this.buffer(128, 4);
 
@@ -70,7 +70,7 @@ public abstract class JackBufferContract
   }
 
   @Test
-  public final void testOKArrayB()
+  public final void testPutOKArrayB()
   {
     final JackBufferType buffer = this.buffer(128, 1);
 
@@ -80,7 +80,7 @@ public abstract class JackBufferContract
   }
 
   @Test
-  public final void testOverflow0()
+  public final void testPutOverflow0()
   {
     final JackBufferType buffer = this.buffer(128, 4);
 
@@ -89,7 +89,7 @@ public abstract class JackBufferContract
   }
 
   @Test
-  public final void testOverflow1()
+  public final void testPutOverflow1()
   {
     final JackBufferType buffer = this.buffer(128, 4);
 
@@ -98,7 +98,7 @@ public abstract class JackBufferContract
   }
 
   @Test
-  public final void testOverflow2()
+  public final void testPutOverflow2()
   {
     final JackBufferType buffer = this.buffer(4, 4);
 
@@ -107,7 +107,7 @@ public abstract class JackBufferContract
   }
 
   @Test
-  public final void testOverflow3()
+  public final void testPutOverflow3()
   {
     final JackBufferType buffer = this.buffer(4, 4);
 
@@ -116,7 +116,7 @@ public abstract class JackBufferContract
   }
 
   @Test
-  public final void testOverflow4()
+  public final void testPutOverflow4()
   {
     final JackBufferType buffer = this.buffer(4, 1);
 
@@ -125,7 +125,7 @@ public abstract class JackBufferContract
   }
 
   @Test
-  public final void testOverflow5()
+  public final void testPutOverflow5()
   {
     final JackBufferType buffer = this.buffer(4, 1);
 
@@ -134,7 +134,7 @@ public abstract class JackBufferContract
   }
 
   @Test
-  public final void testOverflow6()
+  public final void testPutOverflow6()
   {
     final JackBufferType buffer = this.buffer(4, 1);
 
@@ -143,11 +143,151 @@ public abstract class JackBufferContract
   }
 
   @Test
-  public final void testOverflow7()
+  public final void testPutOverflow7()
   {
     final JackBufferType buffer = this.buffer(4, 4);
 
     this.expected.expect(ArrayIndexOutOfBoundsException.class);
     buffer.putArrayF(0, new float[]{0.0f, 0.0f, 0.0f, 0.0f, 0.0f});
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  @Test
+  public final void testGetOKF()
+  {
+    final JackBufferType buffer = this.buffer(128, 4);
+
+    for (int index = 0; index < buffer.frameCount(); ++index) {
+      buffer.getF(index);
+    }
+  }
+
+  @Test
+  public final void testGetOKI()
+  {
+    final JackBufferType buffer = this.buffer(128, 4);
+
+    for (int index = 0; index < buffer.frameCount(); ++index) {
+      buffer.getI(index);
+    }
+  }
+
+  @Test
+  public final void testGetOKB()
+  {
+    final JackBufferType buffer = this.buffer(128, 1);
+
+    for (int index = 0; index < buffer.frameCount(); ++index) {
+      buffer.getB(index);
+    }
+  }
+
+  @Test
+  public final void testGetOKArrayF()
+  {
+    final JackBufferType buffer = this.buffer(128, 4);
+
+    for (int index = 0; index < buffer.frameCount(); ++index) {
+      buffer.getArrayF(index, new float[] {(float) index});
+    }
+  }
+
+  @Test
+  public final void testGetOKArrayB()
+  {
+    final JackBufferType buffer = this.buffer(128, 1);
+
+    for (int index = 0; index < buffer.frameCount(); ++index) {
+      buffer.getArrayB(index, new byte[] {(byte) index});
+    }
+  }
+
+  @Test
+  public final void testGetOverflow0()
+  {
+    final JackBufferType buffer = this.buffer(128, 4);
+
+    this.expected.expect(ArrayIndexOutOfBoundsException.class);
+    buffer.getF(128);
+  }
+
+  @Test
+  public final void testGetOverflow1()
+  {
+    final JackBufferType buffer = this.buffer(128, 4);
+
+    this.expected.expect(ArrayIndexOutOfBoundsException.class);
+    buffer.getF(-1);
+  }
+
+  @Test
+  public final void testGetOverflow2()
+  {
+    final JackBufferType buffer = this.buffer(4, 4);
+
+    this.expected.expect(ArrayIndexOutOfBoundsException.class);
+    buffer.getArrayF(0, new float[]{0.0f, 0.0f, 0.0f, 0.0f, 0.0f});
+  }
+
+  @Test
+  public final void testGetOverflow3()
+  {
+    final JackBufferType buffer = this.buffer(4, 4);
+
+    this.expected.expect(ArrayIndexOutOfBoundsException.class);
+    buffer.getArrayF(-1, new float[]{0.0f, 0.0f, 0.0f, 0.0f});
+  }
+
+  @Test
+  public final void testGetOverflow4()
+  {
+    final JackBufferType buffer = this.buffer(4, 1);
+
+    this.expected.expect(ArrayIndexOutOfBoundsException.class);
+    buffer.getArrayB(-1, new byte[]{0, 0, 0, 0});
+  }
+
+  @Test
+  public final void testGetOverflow5()
+  {
+    final JackBufferType buffer = this.buffer(4, 1);
+
+    this.expected.expect(ArrayIndexOutOfBoundsException.class);
+    buffer.getB(-1);
+  }
+
+  @Test
+  public final void testGetOverflow6()
+  {
+    final JackBufferType buffer = this.buffer(4, 1);
+
+    this.expected.expect(ArrayIndexOutOfBoundsException.class);
+    buffer.getB(4);
+  }
+
+  @Test
+  public final void testGetOverflow7()
+  {
+    final JackBufferType buffer = this.buffer(4, 4);
+
+    this.expected.expect(ArrayIndexOutOfBoundsException.class);
+    buffer.getArrayF(0, new float[]{0.0f, 0.0f, 0.0f, 0.0f, 0.0f});
   }
 }

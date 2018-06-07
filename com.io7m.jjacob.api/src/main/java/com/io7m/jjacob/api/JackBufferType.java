@@ -78,7 +78,7 @@ public interface JackBufferType
    * allow for the full range of unsigned byte values ({@code [0, 255]}).
    *
    * @param offset The offset
-   * @param value The value
+   * @param value  The value
    */
 
   void putB(
@@ -101,11 +101,111 @@ public interface JackBufferType
    * Place an array of byte values at the byte offset {@code offset}
    * in the buffer.
    *
-   * @param offset  The index
+   * @param offset The index
    * @param values The values
    */
 
   void putArrayB(
     int offset,
     byte[] values);
+
+  /**
+   * Get a floating point value from the byte offset {@code index * 4} in the
+   * buffer.
+   *
+   * @param index The index
+   *
+   * @return The fetched value
+   */
+
+  float getF(
+    int index);
+
+  /**
+   * Get an integer value from the byte offset {@code index * 4} in the
+   * buffer.
+   *
+   * @param index The index
+   *
+   * @return The fetched value
+   */
+
+  int getI(
+    int index);
+
+  /**
+   * Get a byte value from the byte offset {@code offset} in the
+   * buffer. The return value is of type {@code int} in order to
+   * allow for the full range of unsigned byte values ({@code [0, 255]}).
+   *
+   * @param offset The offset
+   *
+   * @return The fetched value
+   */
+
+  int getB(
+    int offset);
+
+  /**
+   * Get an array of {@code length} floating point values from the byte offset {@code index * 4}
+   * in the buffer, writing them to {@code offset} in the given {@code values}
+   * array.
+   *
+   * @param offset The offset within the array
+   * @param index  The index
+   * @param length The number of values to fetch
+   * @param values The values
+   */
+
+  void getArrayF(
+    int index,
+    float[] values,
+    int offset,
+    int length);
+
+  /**
+   * Get an array of floating point values from the byte offset {@code index * 4}
+   * in the buffer.
+   *
+   * @param index  The index
+   * @param values The values
+   */
+
+  default void getArrayF(
+    final int index,
+    final float[] values)
+  {
+    this.getArrayF(index, values, 0, values.length);
+  }
+
+  /**
+   * Get an array of byte values from the byte offset {@code offset}
+   * in the buffer.
+   *
+   * @param array_offset The offset within the array
+   * @param offset       The byte offset in the buffer
+   * @param length       The number of values to fetch
+   * @param values       The values
+   */
+
+  void getArrayB(
+    int offset,
+    byte[] values,
+    int array_offset,
+    int length);
+
+  /**
+   * Get an array of byte values from the byte offset {@code offset}
+   * in the buffer.
+   *
+   * @param offset The index
+   * @param values The values
+   */
+
+  default void getArrayB(
+    final int offset,
+    final byte[] values)
+  {
+    this.getArrayB(offset, values, 0, values.length);
+  }
 }

@@ -67,6 +67,44 @@ public final class JackBufferTest extends JackBufferContract
       {
 
       }
+
+      @Override
+      protected float actualGetF(final long offset)
+      {
+        return 0;
+      }
+
+      @Override
+      protected int actualGetI(final long offset)
+      {
+        return 0;
+      }
+
+      @Override
+      protected int actualGetB(final long offset)
+      {
+        return 0;
+      }
+
+      @Override
+      protected void actualGetArrayF(
+        final long offset,
+        final float[] values,
+        final int array_offset,
+        final int length)
+      {
+
+      }
+
+      @Override
+      protected void actualGetArrayB(
+        final long offset,
+        final byte[] values,
+        final int array_offset,
+        final int length)
+      {
+
+      }
     };
   }
 }
