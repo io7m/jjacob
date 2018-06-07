@@ -2,6 +2,184 @@
 
 <div xmlns="http://www.w3.org/1999/xhtml">
   <h3>User documentation</h3>
-  <p>No user documentation is available: See the JavaDoc comments
-     and the original JACK API documentation.</p>
+  <p>
+    See the JavaDoc comments and the original JACK API documentation.
+  </p>
+  <h3>Usage</h3>
+  <p>
+    Add the <tt>com.io7m.jjacob.api</tt> and <tt>com.io7m.jjacob.vanilla</tt> modules
+    as dependencies to your application (or just <tt>com.io7m.jjacob.api</tt> if you're
+    only writing library code). The <tt>com.io7m.jjacob.api</tt> module is the API
+    specification and the <tt>com.io7m.jjacob.vanilla</tt> module is the default
+    implementation that uses the JNR bindings to <tt>libjack</tt> internally.</p>
+  <p>
+    The following is a simple example client that produces a sine wave tone
+    forever:
+  </p>
+  <pre><![CDATA[
+public static void main(final String[] args)
+  throws LibJackUnavailableException
+{
+  /*
+   * Create a new registry of port types including only those types that
+   * JACK knows about by default (JACK_DEFAULT_AUDIO_TYPE and JACK_DEFAULT_MIDI_TYPE).
+   */
+
+  final JackPortTypeRegistry types = new JackPortTypeRegistry();
+  types.providerAdd(new JackPortTypesDefault());
+
+  /*
+   * Create a new client provider using the plain libjack C implementation.
+   */
+
+  final JackClientProviderType provider =
+    JackClientProvider.create(types, LibJack.get());
+
+  /*
+   * Create a basic client configuration that just specifies a client name
+   * but otherwise uses the default settings.
+   */
+
+  final JackClientConfiguration config =
+    JackClientConfiguration.builder()
+      .setClientName("jjacob-vanilla")
+      .build();
+
+  /*
+   * Open a new client.
+   */
+
+  try (final JackClientType client = provider.openClient(config)) {
+    LOG.debug("client:      {}", client);
+    LOG.debug("sample rate: {}", Integer.valueOf(client.sampleRate()));
+    LOG.debug("buffer size: {}", Integer.valueOf(client.bufferSize()));
+    LOG.debug("cpu load:    {}", Float.valueOf(client.cpuLoad()));
+
+    /*
+     * Show all available input and output ports.
+     */
+
+    final List<String> output_ports =
+      client.portsList(
+        Optional.empty(),
+        Optional.empty(),
+        EnumSet.of(JACK_PORT_IS_OUTPUT));
+
+    output_ports.forEach(name -> LOG.debug("output: {}", name));
+
+    final List<String> input_ports =
+      client.portsList(
+        Optional.empty(),
+        Optional.empty(),
+        EnumSet.of(JACK_PORT_IS_INPUT));
+
+    input_ports.forEach(name -> LOG.debug("input:  {}", name));
+
+    /*
+     * Searching for nonexistent ports returns no ports.
+     */
+
+    {
+      final List<String> empty_ports =
+        client.portsList(
+          Optional.of("DOES NOT EXIST!"),
+          Optional.empty(),
+          EnumSet.noneOf(JackPortFlag.class));
+      LOG.debug("empty_ports: {}", empty_ports);
+    }
+
+    /*
+     * Register two new output ports.
+     */
+
+    final JackPortType port_L =
+      client.portRegister("out_L", EnumSet.of(JACK_PORT_IS_OUTPUT));
+    final JackPortType port_R =
+      client.portRegister("out_R", EnumSet.of(JACK_PORT_IS_OUTPUT));
+
+    LOG.debug("owned: {}", Boolean.valueOf(port_L.belongsTo(client)));
+    LOG.debug("owned: {}", Boolean.valueOf(port_R.belongsTo(client)));
+
+    /*
+     * Set a processing callback that will write a sine wave tone to the
+     * outputs.
+     */
+
+    client.setProcessCallback(context -> {
+      final JackBufferType buf0 = context.portBuffer(port_L);
+      final JackBufferType buf1 = context.portBuffer(port_R);
+      final int frames = context.bufferFrameCount();
+
+      for (int index = 0; index < frames; index++) {
+        final double position = (double) index / (double) frames;
+        final double x = 0.2 * Math.sin(position * Math.PI * 4.0);
+        buf0.putF(index, (float) x);
+        buf1.putF(index, (float) x);
+      }
+    });
+
+    /*
+     * Activate the client.
+     */
+
+    client.activate();
+
+    LOG.debug(
+      "port_L: {} ({}) (typeName: '{}') (flags: {})",
+      port_L.name(),
+      port_L.shortName(),
+      port_L.typeName(),
+      port_L.flags());
+    LOG.debug(
+      "port_R: {} ({}) (typeName: '{}') (flags: {})",
+      port_R.name(),
+      port_R.shortName(),
+      port_R.typeName(),
+      port_R.flags());
+
+    /*
+     * Try and find the system's output ports and connect the client
+     * to them.
+     */
+
+    final Optional<JackPortType> system_L_opt =
+      client.portByName("system:playback_1");
+    final Optional<JackPortType> system_R_opt =
+      client.portByName("system:playback_2");
+
+    system_L_opt.ifPresent(out_L -> {
+      try {
+        client.portsConnect(port_L.name(), out_L.name());
+      } catch (final JackException e) {
+        LOG.error("could not connect output port: ", e);
+      }
+    });
+
+    system_R_opt.ifPresent(out_R -> {
+      try {
+        client.portsConnect(port_R.name(), out_R.name());
+      } catch (final JackException e) {
+        LOG.error("could not connect output port: ", e);
+      }
+    });
+
+    /*
+     * Sleep forever whilst JACK calls the client repeatedly to produce
+     * audio.
+     */
+
+    try {
+      while (true) {
+        Thread.sleep(1000L);
+      }
+    } catch (final InterruptedException e) {
+      Thread.currentThread().interrupt();
+    }
+
+    client.deactivate();
+  } catch (final JackException e) {
+    LOG.error("jack error: ", e);
+  }
+}
+]]></pre>
 </div>

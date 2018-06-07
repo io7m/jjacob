@@ -8,3 +8,4 @@ jjacob
 [![Codecov](https://img.shields.io/codecov/c/github/io7m/jjacob.svg?style=flat-square)](https://codecov.io/gh/io7m/jjacob)
 
 ![jjacob](./src/site/resources/jjacob.jpg?raw=true)
+
