@@ -28,6 +28,7 @@
   <properties>
     <io7m.api.previousVersion>0.0.1</io7m.api.previousVersion>
     <io7m.org.immutables.value.version>2.6.1</io7m.org.immutables.value.version>
+    <bnd.baseline.skip>true</bnd.baseline.skip>
   </properties>
 
   <licenses>
