@@ -22,7 +22,15 @@ package com.io7m.jjacob.api;
 
 public interface JackBufferMIDIType
 {
+  /**
+   * @return The number of events in the buffer
+   */
+
   int eventCount();
+
+  /**
+   * @return The number of lost events logged by the server
+   */
 
   int eventLostCount();
 }

@@ -799,7 +799,7 @@ public final class JackClientProvider implements JackClientProviderType
         final int lost_event_count =
           this.libjack.jack_midi_get_lost_event_count(buffer_ptr);
 
-        return new MIDIBuffer(buffer_ptr, event_count, lost_event_count);
+        return new MIDIBuffer(event_count, lost_event_count);
       }
 
       throw new IllegalArgumentException("Incompatible port class");
@@ -808,17 +808,13 @@ public final class JackClientProvider implements JackClientProviderType
 
   private static final class MIDIBuffer implements JackBufferMIDIType
   {
-    private final Pointer buffer_ptr;
     private final int event_count;
     private final int lost_event_count;
 
     MIDIBuffer(
-      final Pointer in_buffer_ptr,
       final int in_event_count,
       final int in_lost_event_count)
     {
-      this.buffer_ptr =
-        Objects.requireNonNull(in_buffer_ptr, "buffer_ptr");
       this.event_count = in_event_count;
       this.lost_event_count = in_lost_event_count;
     }

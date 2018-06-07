@@ -6,6 +6,7 @@
       <Class name="~com\.io7m\.jjacob\..+\$InitShim"/>
       <Class name="com.io7m.jjacob.api.JackClientConfiguration"/>
       <Class name="com.io7m.jjacob.porttype.api.JackPortTypeInformation"/>
+      <Class name="com.io7m.jjacob.jnr.LibJackType$MidiEvent"/>
     </Or>
   </Match>
 
@@ -15,6 +16,7 @@
       <Bug pattern="MRC_METHOD_RETURNS_CONSTANT"/>
       <Bug pattern="WEM_WEAK_EXCEPTION_MESSAGING"/>
       <Bug pattern="IMC_IMMATURE_CLASS_NO_TOSTRING"/>
+      <Bug pattern="UVA_USE_VAR_ARGS"/>
     </Or>
   </Match>
 

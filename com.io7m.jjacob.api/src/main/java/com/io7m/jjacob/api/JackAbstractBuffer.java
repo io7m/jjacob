@@ -249,7 +249,7 @@ public abstract class JackAbstractBuffer implements JackBufferType
   }
 
   @Override
-  public void getArrayF(
+  public final void getArrayF(
     final int index,
     final float[] values,
     final int array_offset,
@@ -265,7 +265,7 @@ public abstract class JackAbstractBuffer implements JackBufferType
   }
 
   @Override
-  public void getArrayB(
+  public final void getArrayB(
     final int offset,
     final byte[] values,
     final int array_offset,
