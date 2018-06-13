@@ -9,3 +9,8 @@ jjacob
 
 ![jjacob](./src/site/resources/jjacob.jpg?raw=true)
 
+*THIS PROJECT IS ABANDONED*
+
+It appears that `jnr` has threading issues (see https://github.com/jnr/jnr-ffi/issues/125) which results
+in these bindings spawning thousands of threads. Use [JNAJack](https://github.com/jaudiolibs/jnajack) instead!
+
